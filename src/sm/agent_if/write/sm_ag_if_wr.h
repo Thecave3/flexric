@@ -15,6 +15,7 @@
 #include "../../gtp_sm/ie/gtp_data_ie.h"
 #include "../../kpm_sm/kpm_data_ie_wrapper.h"
 #include "../../rc_sm/ie/rc_data_ie.h"
+#include "../../../lib/e2ap/ric_gen_id_wrapper.h"
 
 //////////////////////
 //////////////////////
@@ -67,7 +68,7 @@ typedef enum{
 } sm_ag_if_subs_e;
 
 typedef struct{ 
-  uint32_t ric_req_id;
+  ric_gen_id_t ric_id;
   rc_sub_data_t rc;
 } wr_rc_sub_data_t;
 

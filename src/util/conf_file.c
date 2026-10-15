@@ -521,10 +521,10 @@ char* get_near_ric_ip(fr_args_t const* args)
 }
 
 // Unlike the IP address, a missing key or a missing config file is not an error:
-// the port then falls back to def. The E2 agent is linked into RAN processes that
+// the value then falls back to def. The E2 agent is linked into RAN processes that
 // fill fr_args_t themselves and never set conf_file.
 static
-int read_conf_port(fr_args_t const* args, const char* needle, int def)
+long read_conf_long(fr_args_t const* args, const char* needle, long def, long min, long max)
 {
   assert(args != NULL);
   assert(needle != NULL);
@@ -554,16 +554,52 @@ int read_conf_port(fr_args_t const* args, const char* needle, int def)
     ans = rtrim(ans);
 
     char* end = NULL;
-    long const port = strtol(ans, &end, 10);
-    if (end == ans || *end != '\0' || valid_port(port) == false) {
-      printf("Port invalid = %s in \"%s\" Check the config file\n", ans, needle);
+    long const val = strtol(ans, &end, 10);
+    if (end == ans || *end != '\0' || val < min || val > max) {
+      printf("Invalid value = %s in \"%s\", expected %ld to %ld. Check the config file\n", ans, needle, min, max);
       exit(EXIT_FAILURE);
     }
 
-    return port;
+    return val;
   }
 
   return def;
+}
+
+static
+int read_conf_port(fr_args_t const* args, const char* needle, int def)
+{
+  return read_conf_long(args, needle, def, 1, 65535);
+}
+
+// An E2 agent SCTP timer: the fr_args_t value when the RAN set one, else the
+// config file, else def. Read once at start-up, so an out-of-range value stops
+// the process there instead of running with a timer the kernel would refuse.
+static
+int sctp_timer(fr_args_t const* args, int arg, const char* needle, int def, int min, int max)
+{
+  if (arg == 0)
+    return read_conf_long(args, needle, def, min, max);
+
+  if (arg < min || arg > max) {
+    printf("Invalid value = %d for \"%s\", expected %d to %d\n", arg, needle, min, max);
+    exit(EXIT_FAILURE);
+  }
+
+  return arg;
+}
+
+fr_sctp_timers_t get_e2ap_sctp_timers(fr_args_t const* args)
+{
+  assert(args != NULL);
+
+  fr_sctp_timers_t const t = {
+    .hb_interval_ms = sctp_timer(args, args->sctp_hb_interval_ms, "SCTP_HB_INTERVAL_MS =", SCTP_DEFAULT_HB_INTERVAL_MS, 100, 300000),
+    .rto_max_ms = sctp_timer(args, args->sctp_rto_max_ms, "SCTP_RTO_MAX_MS =", SCTP_DEFAULT_RTO_MAX_MS, 200, 120000),
+    .max_retrans = sctp_timer(args, args->sctp_max_retrans, "SCTP_MAX_RETRANS =", SCTP_DEFAULT_MAX_RETRANS, 1, 30),
+  };
+
+  return t;
 }
 
 int get_near_ric_port(fr_args_t const* args)

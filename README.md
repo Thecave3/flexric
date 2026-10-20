@@ -70,7 +70,9 @@ sudo update-alternatives --config gcc # chose gcc-13
 > **Note:** gcc-11 is not supported in FlexRIC
 
 #### 1.1.2 (opt.) Wireshark
-Per `O-RAN.WG3.E2GAP-v02.00` specifications, no SCTP port is specified for E2AP protocol. In our implementation, we default to port number 36421 (`E2AP_PORT` in `flexric.conf`, see [6.1](#61-o-ran-sc-nearrt-ric)). Please, add the following configuration in Wireshark:
+According to the O-RAN.WG3.E2GAP-v02.00 specification, no SCTP port is specified for the E2AP protocol. In our implementation, the port is defined by `E2AP_PORT`, which defaults to 36421.
+
+Please add the following decoding configuration in Wireshark:
 
 ![E2AP configuration](fig/4.png)
 

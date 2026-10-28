@@ -155,6 +155,13 @@ If you want to profile FlexRIC, or just need a fast nearRT-RIC, you should build
 mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j8
 ```
 
+If you build FlexRIC with TSan (`-DSANITIZER=THREAD`), check the address space layout randomization (ASLR) setting of your kernel first:
+```bash
+cat /proc/sys/vm/mmap_rnd_bits
+```
+Some recent kernels set it to `32`. TSan reserves fixed memory ranges for its own use and expects the binary and the shared libraries to be loaded in the default ASLR range (`28` bits).
+To set this permanently, add `vm.mmap_rnd_bits=28` line in `/etc/sysctl.conf`.
+
 ### 2.3 Installation of Service Models (SMs)
 The service models are shared by xApps and the RAN. Therefore, they have to be installed in a place where the RAN can access them. The easiest is to install them globally, by typing:
 ```bash

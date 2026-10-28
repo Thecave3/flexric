@@ -65,14 +65,14 @@ Please see [NOTICE](NOTICE) for third party softwares that are used by flexric.
 ### 1.1 Prerequisites
 
 #### 1.1.1 GCC compiler
-- Please make sure you have gcc-13 installed (gcc-10 and 12 are compatible as well). Follow the next steps:
+- Upgrade to the recommended GCC version 16:
 ```bash
 sudo apt update -y
 sudo apt upgrade -y
 sudo apt install -y build-essential
-sudo apt install -y gcc-13 g++-13 cpp-13
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13 --slave /usr/bin/gcov gcov /usr/bin/gcov-13
-sudo update-alternatives --config gcc # chose gcc-13
+sudo apt install -y gcc-16
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
+sudo update-alternatives --config gcc # chose gcc-16
 ```
 > **Note:** gcc-11 is not supported in FlexRIC
 
